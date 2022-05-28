@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
@@ -30,6 +31,7 @@ async function run() {
         const toolsCollection = db.collection('tools');
         const reviewsCollection = db.collection('reviews');
         const ordersCollection = db.collection('orders');
+        const usersCollection = db.collection('users');
 
         // tools
         app.post('/tools', async (req, res) => {
@@ -85,6 +87,26 @@ async function run() {
             };
             await ordersCollection.deleteOne(query);
             res.json({ message: 'ok' });
+        });
+
+        // users
+        app.post('/users', async (req, res) => {
+            await usersCollection.insertOne(req.body);
+            const user = await usersCollection.findOne({
+                email: req.body.email,
+            });
+            if (!user) return res.send({ token: '', admin: false });
+            const token = jwt.sign(user, process.env.SECRET);
+            res.send({ token, admin: user.admin });
+        });
+
+        app.get('/users', async (req, res) => {
+            const query = {};
+            if (req.query.email) query.email = req.query.email;
+            const user = await usersCollection.findOne(query);
+            if (!user) return res.send({ token: '', admin: false });
+            const token = jwt.sign(user, process.env.SECRET);
+            res.send({ token, admin: user.admin });
         });
     } finally {
     }
