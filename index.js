@@ -83,7 +83,7 @@ async function run() {
             const query = {
                 _id: ObjectId(req.params.id),
             };
-            await itemCollection.deleteOne(query);
+            await ordersCollection.deleteOne(query);
             res.json({ message: 'ok' });
         });
     } finally {
