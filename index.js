@@ -26,6 +26,58 @@ async function run() {
     try {
         await client.connect();
         console.log('DB connected.');
+        const db = client.db('geniusCar');
+        const toolsCollection = db.collection('tools');
+        const reviewsCollection = db.collection('reviews');
+        const ordersCollection = db.collection('orders');
+
+        // tools
+        app.post('/tools', async (req, res) => {
+            await toolsCollection.insertOne(req.body);
+            res.json({ message: 'ok' });
+        });
+
+        app.get('/tools', async (req, res) => {
+            const query = {};
+            const cursor = toolsCollection.find(query);
+            const items = await cursor.toArray();
+            res.send(items);
+        });
+
+        app.get('/tools/:id', async (req, res) => {
+            const query = {
+                _id: ObjectId(req.params.id),
+            };
+            const item = await toolsCollection.findOne(query);
+            res.send(item);
+        });
+
+        // reviews
+        app.post('/reviews', async (req, res) => {
+            await reviewsCollection.insertOne(req.body);
+            res.json({ message: 'ok' });
+        });
+
+        app.get('/reviews', async (req, res) => {
+            const query = {};
+            const cursor = reviewsCollection.find(query);
+            const items = await cursor.toArray();
+            res.send(items);
+        });
+
+        // orders
+        app.post('/orders', async (req, res) => {
+            await ordersCollection.insertOne(req.body);
+            res.json({ message: 'ok' });
+        });
+
+        app.get('/orders', async (req, res) => {
+            const query = {};
+            if (req.query.email) query.email = req.query.email;
+            const cursor = ordersCollection.find(query);
+            const items = await cursor.toArray();
+            res.send(items);
+        });
     } finally {
     }
 }
