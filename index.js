@@ -78,6 +78,14 @@ async function run() {
             const items = await cursor.toArray();
             res.send(items);
         });
+
+        app.delete('/orders/:id', async (req, res) => {
+            const query = {
+                _id: ObjectId(req.params.id),
+            };
+            await itemCollection.deleteOne(query);
+            res.json({ message: 'ok' });
+        });
     } finally {
     }
 }
